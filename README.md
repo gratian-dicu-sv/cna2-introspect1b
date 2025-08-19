@@ -1,19 +1,87 @@
-## Running the deployment
-Usage:
-```zsh
-./deploy.sh
-```
-Description:
-  This script automates the deployment process for the application. It typically handles tasks such as building the project, copying files to the server, and restarting cessary services.
-How to Run:
-  1. Make sure the script has execute permissions:
-       chmod +x deploy.sh
-  2. Run the script from the terminal:
-       ./deploy.sh
-  3. Optionally, provide any supported command-line options as needed.
-Note:
-   Review the script for environment-specific variables or prerequisites before running.
+# Containerized Microservice with Azure Container Apps and Dapr
 
+This project demonstrates a containerized microservice architecture using Azure Container Apps (ACA) with Dapr for pub/sub messaging.
+
+It includes two simple Node.js microservices:
+-   **ProductService**: Publishes an event when a new product is created.
+-   **OrderService**: Subscribes to the product creation event.
+
+The entire infrastructure is defined using Terraform and can be deployed with a single script.
+
+## Prerequisites
+
+-   [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
+-   [Docker](https://docs.docker.com/get-docker/)
+-   [Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli)
+
+## Deployment
+
+The project includes two deployment scripts: one for the main application and an optional one for deploying Azure AI services.
+
+### Main Application (Product & Order Services)
+
+The `deploy.sh` script automates the entire process of deploying the microservices and their required infrastructure, including:
+-   Azure Resource Group
+-   Azure Container Registry (ACR)
+-   Azure Container Apps Environment
+-   Redis container for Dapr pub/sub
+-   ProductService and OrderService Container Apps
+
+**Usage:**
+
+The script requires a resource group name and optionally accepts a location.
+
+```bash
+./deploy.sh <ResourceGroupName> [Location]
+```
+
+**Example (deploying to a new resource group in the default "East US" location):**
+```bash
+./deploy.sh my-dapr-rg
+```
+
+**Example (deploying to a specific location):**
+```bash
+./deploy.sh my-dapr-rg "West Europe"
+```
+
+### Azure AI Foundry (Optional)
+
+The `deploy-ai.sh` script deploys an Azure AI Foundry and an associated project. This is an optional deployment and is separate from the main application.
+
+**Usage:**
+
+This script also requires a resource group name and optionally accepts a location.
+
+```bash
+./deploy-ai.sh <ResourceGroupName> [Location]
+```
+
+**Example (deploying to a new resource group):**
+```bash
+./deploy-ai.sh my-ai-foundry-rg
+```
+
+## Testing the Application
+
+After running `deploy.sh`, the script will output the public URLs for the two services.
+
+1.  **Publish a Product Event:**
+    Send a `POST` request to the `ProductService`. Replace `<PRODUCT_SERVICE_URL>` with the actual URL from the script's output.
+
+    ```bash
+    curl -X POST <PRODUCT_SERVICE_URL>/products \
+    -H "Content-Type: application/json" \
+    -d '{ "id": "101", "name": "Laptop", "price": 1299.99 }'
+    ```
+
+2.  **Verify the Order Service Received the Event:**
+    Send a `GET` request to the `OrderService`. You should see the product you just created in the response.
+
+    ```bash
+    curl <ORDER_SERVICE_URL>/orders
+    ```
+    
 ## Deployment logs
 ~/Projects/CNA-level2/Introspect 1/Introspect1B-GratianDicu λ ./deploy.sh
 Logging in to Azure...

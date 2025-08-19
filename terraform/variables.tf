@@ -1,7 +1,6 @@
 variable "resource_group_name" {
   description = "The name of the resource group."
   type        = string
-  default     = "dapr-rg"
 }
 
 variable "location" {
@@ -38,4 +37,27 @@ variable "order_service_name" {
   description = "The name of the Order Service Container App."
   type        = string
   default     = "order-service"
+}
+
+variable "deploy_ai_foundry" {
+  description = "Set to true to deploy the Azure AI Foundry and Project."
+  type        = bool
+  default     = false
+}
+
+variable "ai_foundry_name" {
+  description = "The name of the Azure AI Foundry."
+  type        = string
+  default     = "dapr-ai-foundry"
+}
+
+variable "ai_project_name" {
+  description = "The name of the Azure AI Foundry Project."
+  type        = string
+  default     = "dapr-ai-project"
+}
+
+variable "subscription_id" {
+  description = "The Azure subscription ID to use for the deployment."
+  type        = string
 }

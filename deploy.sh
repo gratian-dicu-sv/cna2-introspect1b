@@ -3,6 +3,19 @@
 # Exit on error
 set -e
 
+# --- Script Usage ---
+if [ "$#" -lt 1 ]; then
+    echo "Usage: $0 <ResourceGroupName> [Location]"
+    echo "Example: $0 my-dapr-rg \"East US\""
+    exit 1
+fi
+
+RESOURCE_GROUP_NAME=$1
+LOCATION=${2:-"East US"} # Default to "East US" if not provided
+
+echo "Using Resource Group: $RESOURCE_GROUP_NAME"
+echo "Using Location: $LOCATION"
+
 # --- Azure Login ---
 echo "Logging in to Azure..."
 az login
@@ -10,14 +23,21 @@ az login
 echo "Registering required Azure providers..."
 az provider register --namespace Microsoft.App --wait
 az provider register --namespace Microsoft.OperationalInsights --wait
+az provider register --namespace Microsoft.CognitiveServices --wait
+
+SUBSCRIPTION_ID=$(az account show --query id --output tsv)
 
 # --- Terraform ---
 echo "Initializing Terraform..."
 cd terraform
-terraform init
+
+echo "Removing old state file to ensure a clean deployment..."
+rm -f terraform.tfstate terraform.tfstate.backup
+
+terraform init -upgrade
 
 echo "Deploying ACR..."
-terraform apply -target=azurerm_container_registry.dapr_acr -auto-approve
+terraform apply -target=azurerm_container_registry.dapr_acr -var="subscription_id=$SUBSCRIPTION_ID" -var="resource_group_name=$RESOURCE_GROUP_NAME" -var="location=$LOCATION" -auto-approve
 
 ACR_NAME=$(terraform output -raw acr_name)
 ACR_LOGIN_SERVER=$(az acr show --name $ACR_NAME --query loginServer --output tsv)
@@ -40,7 +60,7 @@ docker buildx build --platform linux/amd64 -t $ACR_LOGIN_SERVER/order-service:la
 # --- Deploy remaining infrastructure ---
 echo "Deploying the rest of the infrastructure..."
 cd terraform
-terraform apply -auto-approve
+terraform apply -var="subscription_id=$SUBSCRIPTION_ID" -var="resource_group_name=$RESOURCE_GROUP_NAME" -var="location=$LOCATION" -auto-approve
 
 echo "Deployment complete!"
 

@@ -2,14 +2,21 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 3.90.0"
+      version = ">= 4.40.0"
+    }
+    azapi = {
+      source  = "Azure/azapi"
+      version = "~> 2.6"
     }
   }
 }
 
 provider "azurerm" {
   features {}
+  subscription_id = var.subscription_id
 }
+
+provider "azapi" {}
 
 resource "random_string" "suffix" {
   length  = 6
@@ -184,3 +191,46 @@ resource "azurerm_container_app" "order_service" {
     password_secret_name = "acr-password"
   }
 }
+
+resource "azapi_resource" "ai_foundry" {
+  count     = var.deploy_ai_foundry ? 1 : 0
+  type      = "Microsoft.CognitiveServices/accounts@2025-04-01-preview"
+  name      = var.ai_foundry_name
+  location  = azurerm_resource_group.dapr_rg.location
+  parent_id = azurerm_resource_group.dapr_rg.id
+
+  body = {
+    kind = "AIServices"
+    sku = {
+      name = "S0"
+    }
+    identity = {
+      type = "SystemAssigned"
+    }
+    properties = {
+      disableLocalAuth      = false
+      allowProjectManagement = true
+      customSubDomainName   = var.ai_foundry_name
+    }
+  }
+}
+
+resource "azapi_resource" "ai_project" {
+  count     = var.deploy_ai_foundry ? 1 : 0
+  type      = "Microsoft.CognitiveServices/accounts/projects@2025-04-01-preview"
+  name      = var.ai_project_name
+  location  = azurerm_resource_group.dapr_rg.location
+  parent_id = azapi_resource.ai_foundry[0].id
+
+  body = {
+    identity = {
+      type = "SystemAssigned"
+    }
+    properties = {
+      displayName = var.ai_project_name
+      description = "AI project for the Dapr application"
+    }
+  }
+}
+
+data "azurerm_client_config" "current" {}
