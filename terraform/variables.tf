@@ -25,7 +25,7 @@ variable "container_apps_environment_name" {
 variable "acr_name" {
   description = "The name of the Azure Container Registry."
   type        = string
-  default     = null
+  default     = "gddapracr"
 }
 
 variable "product_service_name" {

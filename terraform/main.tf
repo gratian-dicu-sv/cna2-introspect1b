@@ -2,7 +2,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 3.0"
+      version = ">= 3.90.0"
     }
   }
 }
@@ -94,6 +94,22 @@ resource "azurerm_container_app" "product_service" {
   resource_group_name          = azurerm_resource_group.dapr_rg.name
   revision_mode                = "Single"
 
+  template {
+    container {
+      name   = var.product_service_name
+      image  = "${azurerm_container_registry.dapr_acr.login_server}/${var.product_service_name}:latest"
+      cpu    = 0.25
+      memory = "0.5Gi"
+    }
+
+    min_replicas = 1
+    max_replicas = 5
+    http_scale_rule {
+      name = "http-concurrency-rule"
+      concurrent_requests = 90
+    }
+  }
+
   dapr {
     app_id   = var.product_service_name
     app_port = 3000
@@ -103,19 +119,9 @@ resource "azurerm_container_app" "product_service" {
     external_enabled = true
     target_port      = 3000
     transport        = "http"
-
     traffic_weight {
       percentage      = 100
       latest_revision = true
-    }
-  }
-
-  template {
-    container {
-      name   = var.product_service_name
-      image  = "${azurerm_container_registry.dapr_acr.login_server}/${var.product_service_name}:latest"
-      cpu    = 0.25
-      memory = "0.5Gi"
     }
   }
 
@@ -137,6 +143,21 @@ resource "azurerm_container_app" "order_service" {
   resource_group_name          = azurerm_resource_group.dapr_rg.name
   revision_mode                = "Single"
 
+  template {
+    container {
+      name   = var.order_service_name
+      image  = "${azurerm_container_registry.dapr_acr.login_server}/${var.order_service_name}:latest"
+      cpu    = 0.25
+      memory = "0.5Gi"
+    }
+    min_replicas = 1
+    max_replicas = 5
+    http_scale_rule {
+      name = "http-concurrency-rule"
+      concurrent_requests = 90
+    }
+  }
+
   dapr {
     app_id   = var.order_service_name
     app_port = 3001
@@ -146,19 +167,9 @@ resource "azurerm_container_app" "order_service" {
     external_enabled = true
     target_port      = 3001
     transport        = "http"
-
     traffic_weight {
       percentage      = 100
       latest_revision = true
-    }
-  }
-
-  template {
-    container {
-      name   = var.order_service_name
-      image  = "${azurerm_container_registry.dapr_acr.login_server}/${var.order_service_name}:latest"
-      cpu    = 0.25
-      memory = "0.5Gi"
     }
   }
 
