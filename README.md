@@ -81,7 +81,7 @@ After running `deploy.sh`, the script will output the public URLs for the two se
     ```bash
     curl <ORDER_SERVICE_URL>/orders
     ```
-    
+
 ## Deployment logs
 ~/Projects/CNA-level2/Introspect 1/Introspect1B-GratianDicu λ ./deploy.sh
 Logging in to Azure...
@@ -257,4 +257,7 @@ Order Service URL: https://order-service--jnfas5t.redmeadow-e462cb97.eastus.azur
 
 ## Product and Order service logs
 ![Logs after posting several products](screenshots/image-1.png)
+
+## Other screnshots
+![Azure portal deployment](screenshots/image.png)
 
