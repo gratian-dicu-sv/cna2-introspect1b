@@ -1,5 +1,11 @@
 # Containerized Microservice with Azure Container Apps and Dapr
 
+## Source code, screenshots and full documentation
+Due to LMS limitations of accepting PDF files only, the ZIP file requested for Introspect 1B is provided as an attachment. 
+> [!IMPORTANT]
+> [You can download the ZIP file HERE](https://github.com/gratian-dicu-sv/cna2-introspect1b/archive/refs/heads/main.zip)
+
+
 This project demonstrates a containerized microservice architecture using Azure Container Apps (ACA) with Dapr for pub/sub messaging.
 
 It includes two simple Node.js microservices:
