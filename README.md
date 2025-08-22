@@ -88,6 +88,9 @@ After running `deploy.sh`, the script will output the public URLs for the two se
     curl <ORDER_SERVICE_URL>/orders
     ```
 
+## Architecture diagram
+![Diagram](screenshots/diagram-export-22-08-2025-11_47_56.png)
+
 ## Deployment logs
 ~/Projects/CNA-level2/Introspect 1/Introspect1B-GratianDicu λ ./deploy.sh
 Logging in to Azure...
